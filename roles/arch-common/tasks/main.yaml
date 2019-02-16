@@ -10,6 +10,9 @@
     enabled: yes
     state: started
 
+- name: mkdir
+  command: "mkdir -p /etc/systemd/system/getty@tty1.service.d"
+
 - name: "arch-common : config"
   include_role:
     name: common 
@@ -21,21 +24,21 @@
     - { path: /etc/systemd/system/getty@tty1.service.d/getty.conf }
     - { path: /etc/profile.d/sway-env.sh }
 
-- name: user shane
-  user:
-    name: shane
-    append: yes
-    groups:
-      - users
-      - audio
-      - input
-      - kvm
-      - optical
-      - storage
-      - video
-      - systemd-journal
-    shell: /bin/bash
-    expires: -1
+      # - name: user shane
+      #   user:
+      #     name: shane
+      #     append: yes
+      #     groups:
+      #       - users
+      #       - audio
+      #       - input
+      #       - kvm
+      #       - optical
+      #       - storage
+      #       - video
+      #       - systemd-journal
+      #     shell: /bin/bash
+      #     expires: -1
 
 - name: "arch-common : sudoers"
   copy:
@@ -90,11 +93,42 @@
     path: /usr/bin/yay
   register: yay_bin
 
-- name: yay install
-  command: "cd /tmp && git clone https://aur.archlinux.org/yay.git && cd yay && makepkg -si && rm -rf /tmp/yay"
-  when: yay_bin.stat.exists == False
+- name: yay dependencies
+  pacman:
+    name:
+      - binutils
+      - base-devel
+    state: present
+
+- name: yay pre-cleanup
+  file:
+    state: absent
+    path: /tmp/yay
+
+- name: yay clone
+  become: yes
+  become_user: shane
+  command: "git clone https://aur.archlinux.org/yay.git"
+  args:
+    chdir: /tmp
+  when: yay_bin.stat.exists is defined and yay_bin.stat.exists == False
+
+- name: yay build
+  become: yes
+  become_user: shane
+  command: "makepkg -si --needed --noconfirm"
+  args:
+    chdir: /tmp/yay
+  when: yay_bin.stat.exists is defined and yay_bin.stat.exists == False
+
+- name: yay cleanup
+  file:
+    state: absent
+    path: /tmp/yay
 
 - name: install aur packages
+  become: yes
+  become_user: shane
   yay:
     name:
       - yay

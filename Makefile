@@ -6,10 +6,10 @@ PLAY=ansible-playbook
 ARGS=-i hosts.yaml --extra-vars "target=$(TARGET)" -D site.yaml
 
 check:
-	sudo $(PLAY) -C $(ARGS)
+	$(PLAY) -C $(ARGS)
 
 check-verbose:
-	sudo $(PLAY) -C -vvvv $(ARGS)
+	$(PLAY) -C -vvvv $(ARGS)
 
 run:
-	sudo $(PLAY) $(ARGS)
+	$(PLAY) $(ARGS)
