@@ -32,8 +32,10 @@
 
 # bootstrap
 
-% pacstrap /mnt base git ansible make
+% pacstrap /mnt base grub efibootmgr git ansible make
 % genfstab -L /mnt >> /mnt/etc/fstab
 % arch-chroot /mnt
 % git clone https://github.com/shanegibbs/machines.git
+% grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
+% grub-mkconfig -o /boot/grub/grub.cfg
 ```
