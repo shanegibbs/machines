@@ -1,3 +1,5 @@
+# TODO https://www.reddit.com/r/archlinux/comments/5r5ep8/make_your_arch_fonts_beautiful_easily/
+
 - name: /etc/localtime
   file:
     src: /usr/share/zoneinfo/America/Chicago
@@ -20,6 +22,7 @@
   with_items:
     - { path: /etc/locale.gen, onchange: locale-gen }
     - { path: /etc/locale.conf }
+    - { path: /etc/sysctl.d/99-sysctl.conf, onchange: sysctl --system }
     - { path: /etc/systemd/network/20-wired.network, onchange: systemctl restart systemd-networkd }
     - { path: /etc/systemd/system/getty@tty1.service.d/getty.conf }
     - { path: /etc/profile.d/sway-env.sh }
