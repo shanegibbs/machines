@@ -1,3 +1,3 @@
-hosts:
-  prime8:
-    vars:
+all:
+  hosts:
+    prime8:

@@ -53,6 +53,7 @@
       - zsh
       - vim
       - tmux
+      - openssh
       - git
     state: present
 
@@ -108,3 +109,4 @@
     tasks_from: file
   with_items:
     - { path: /etc/default/grub, onchange: grub-mkconfig -o /boot/grub/grub.cfg }
+    - { path: /etc/ssh/ssh_config }
