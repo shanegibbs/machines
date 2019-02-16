@@ -1,0 +1,21 @@
+- name: "{{item.path}}"
+  template:
+    src: "{{item.path | basename}}.j2"
+    dest: "{{item.path}}"
+    backup: yes
+  register: config_out
+
+# - name: config debug
+#   debug:
+#     var: config_out
+
+- name: "{{item.path}} : backup path"
+  file:
+    path: "/var/lib/ansible-backup{{config_out.dest | dirname}}"
+    state: directory
+  when: config_out.changed and 'backup_file' in config_out
+
+- name: "{{item.path}} : backup"
+  command: "mv {{config_out.backup_file}} /var/lib/ansible-backup{{config_out.dest | dirname}}/"
+  when: config_out.changed and 'backup_file' in config_out
+

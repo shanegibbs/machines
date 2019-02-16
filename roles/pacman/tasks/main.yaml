@@ -1,0 +1,7 @@
+- name: config
+  include_role:
+    name: common 
+    tasks_from: file
+  with_items:
+    - path: /etc/pacman.conf
+    - path: /etc/pacman.d/mirrorlist

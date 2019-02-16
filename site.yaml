@@ -1,0 +1,4 @@
+- hosts: "{{target}}"
+  connection: local
+  roles:
+    - main

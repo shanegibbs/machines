@@ -1,0 +1,24 @@
+- name: "{{item.path}}"
+  copy:
+    src: "{{item.path | basename}}"
+    dest: "{{item.path}}"
+    backup: yes
+  register: config_out
+
+# - name: config debug
+#   debug:
+#     var: config_out
+
+- name: "{{item.path}} : backup path"
+  file:
+    path: "/var/lib/ansible-backup{{config_out.dest | dirname}}"
+    state: directory
+  when: config_out.changed and 'backup_file' in config_out
+
+- name: "{{item.path}} : backup"
+  command: "mv {{config_out.backup_file}} /var/lib/ansible-backup{{config_out.dest | dirname}}/"
+  when: config_out.changed and 'backup_file' in config_out
+
+- name: "{{item.path}} : {{item.onchange}}"
+  command: "{{item.onchange}}"
+  when: config_out.changed and 'onchange' in item

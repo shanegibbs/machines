@@ -1,0 +1,110 @@
+- name: /etc/localtime
+  file:
+    src: /usr/share/zoneinfo/America/Chicago
+    dest: /etc/localtime
+    state: link
+
+- name: systemd-networkd
+  systemd:
+    name: systemd-networkd
+    enabled: yes
+    state: started
+
+- name: "arch-common : config"
+  include_role:
+    name: common 
+    tasks_from: file
+  with_items:
+    - { path: /etc/locale.gen, onchange: locale-gen }
+    - { path: /etc/locale.conf }
+    - { path: /etc/systemd/network/20-wired.network, onchange: systemctl restart systemd-networkd }
+    - { path: /etc/systemd/system/getty@tty1.service.d/getty.conf }
+    - { path: /etc/profile.d/sway-env.sh }
+
+- name: user shane
+  user:
+    name: shane
+    append: yes
+    groups:
+      - users
+      - audio
+      - input
+      - kvm
+      - optical
+      - storage
+      - video
+      - systemd-journal
+    shell: /bin/bash
+    expires: -1
+
+- name: "arch-common : sudoers"
+  copy:
+    dest: /etc/sudoers.d/shane
+    content: "shane ALL=(ALL) NOPASSWD:ALL\n"
+
+- name: install core packages
+  pacman:
+    name:
+      - grub
+      - parted
+      - sudo
+      - hwinfo
+      - htop
+      - zsh
+      - vim
+      - tmux
+      - git
+    state: present
+
+- name: install font packages
+  pacman:
+    name:
+      - ttf-font-awesome
+      - ttf-ubuntu-font-family
+      - ttf-dejavu
+      - ttf-liberation
+      - noto-fonts
+      - noto-fonts-emoji
+      - noto-fonts-extra
+    state: present
+
+- name: install vm guest packages
+  pacman:
+    name:
+      - open-vm-tools
+      - xf86-input-vmmouse
+      - xf86-video-vmware
+    state: present
+
+- name: install gui packages
+  pacman:
+    name:
+      - rxvt-unicode
+      - termite
+      - dmenu
+    state: present
+
+- name: yay exists
+  stat: 
+    path: /usr/bin/yay
+  register: yay_bin
+
+- name: yay install
+  command: "cd /tmp && git clone https://aur.archlinux.org/yay.git && cd yay && makepkg -si && rm -rf /tmp/yay"
+  when: yay_bin.stat.exists == False
+
+- name: install aur packages
+  yay:
+    name:
+      - yay
+      - google-chrome
+      - google-cloud-sdk
+      - arch-silence-grub-theme
+      - sway-git
+
+- name: "arch-common : grub"
+  include_role:
+    name: common 
+    tasks_from: file
+  with_items:
+    - { path: /etc/default/grub, onchange: grub-mkconfig -o /boot/grub/grub.cfg }

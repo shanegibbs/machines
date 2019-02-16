@@ -1,0 +1,14 @@
+- name: Display all variables/facts known for a host
+  debug:
+    var: hostvars[inventory_hostname]
+    verbosity: 4
+
+- hostname:
+    name: "{{target}}"
+
+- name: /etc/hosts
+  include_role:
+    name: common 
+    tasks_from: template
+  with_items:
+    - path: /etc/hosts

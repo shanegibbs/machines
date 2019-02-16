@@ -1,0 +1,14 @@
+- name: common
+  include_role:
+    name: common 
+
+- name: pacman
+  include_role:
+    name: pacman
+  when: ansible_facts['distribution'] == 'Archlinux'
+
+- name: arch-common
+  include_role:
+    name: arch-common
+  when: ansible_facts['distribution'] == 'Archlinux'
+
