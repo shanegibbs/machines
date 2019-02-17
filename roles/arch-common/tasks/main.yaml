@@ -27,23 +27,25 @@
     - { path: /etc/systemd/system/getty@tty1.service.d/getty.conf }
     - { path: /etc/profile.d/sway-env.sh }
 
-      # - name: user shane
-      #   user:
-      #     name: shane
-      #     append: yes
-      #     groups:
-      #       - users
-      #       - audio
-      #       - input
-      #       - kvm
-      #       - optical
-      #       - storage
-      #       - video
-      #       - systemd-journal
-      #     shell: /bin/bash
-      #     expires: -1
+- name: user shane
+  become: yes
+  user:
+    name: shane
+    append: yes
+    groups:
+      - users
+      - audio
+      - input
+      - kvm
+      - optical
+      - storage
+      - video
+      - systemd-journal
+    shell: /bin/bash
+    expires: -1
 
 - name: "arch-common : sudoers"
+  become: yes
   copy:
     dest: /etc/sudoers.d/shane
     content: "shane ALL=(ALL) NOPASSWD:ALL\n"
@@ -78,6 +80,7 @@
 - name: install vm guest packages
   pacman:
     name:
+      - systemd-swap
       - open-vm-tools
       - xf86-input-vmmouse
       - xf86-video-vmware
@@ -119,7 +122,7 @@
 - name: yay build
   become: yes
   become_user: shane
-  command: "makepkg -si --needed --noconfirm"
+  command: "sudou su shane makepkg -si --needed --noconfirm"
   args:
     chdir: /tmp/yay
   when: yay_bin.stat.exists is defined and yay_bin.stat.exists == False
@@ -139,6 +142,7 @@
       - google-cloud-sdk
       - arch-silence-grub-theme
       - sway-git
+      - gotop-bin
 
 - name: "arch-common : grub"
   include_role:
