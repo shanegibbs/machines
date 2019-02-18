@@ -97,6 +97,7 @@
       - rxvt-unicode
       - termite
       - dmenu
+      - i3status
     state: present
 
 - name: yay exists
@@ -147,6 +148,7 @@
       - google-cloud-sdk
       - arch-silence-grub-theme
       - gotop-bin
+      - i3-gaps
 
 - name: "arch-common : grub"
   include_role:
