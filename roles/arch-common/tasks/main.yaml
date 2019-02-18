@@ -25,7 +25,6 @@
     - { path: /etc/sysctl.d/99-sysctl.conf, onchange: sysctl --system }
     - { path: /etc/systemd/network/20-wired.network, onchange: systemctl restart systemd-networkd }
     - { path: /etc/systemd/system/getty@tty1.service.d/getty.conf }
-    - { path: /etc/profile.d/sway-env.sh }
 
 - name: user shane
   become: yes
@@ -86,6 +85,12 @@
       - xf86-video-vmware
     state: present
 
+- name: vmtoolsd service
+  systemd:
+    name: vmtoolsd
+    enabled: yes
+    state: started
+
 - name: install gui packages
   pacman:
     name:
@@ -141,7 +146,6 @@
       - google-chrome
       - google-cloud-sdk
       - arch-silence-grub-theme
-      - sway-git
       - gotop-bin
 
 - name: "arch-common : grub"
