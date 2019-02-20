@@ -1,0 +1,40 @@
+- name: check installed
+  stat: 
+    path: /usr/bin/yay
+  register: yay_bin
+
+- name: dependencies
+  pacman:
+    name:
+      - binutils
+      - base-devel
+    state: present
+
+- name: build directory
+  tempfile:
+    state: directory
+    suffix: yay-build
+  register: tmpdir
+  when: yay_bin.stat.exists is defined and yay_bin.stat.exists == False
+
+- name: clone
+  become: yes
+  become_user: shane
+  command: "git clone https://aur.archlinux.org/yay.git"
+  args:
+    chdir: tmpdir.path
+  when: yay_bin.stat.exists is defined and yay_bin.stat.exists == False
+
+- name: build
+  become: yes
+  become_user: shane
+  command: "sudou su shane makepkg -si --needed --noconfirm"
+  args:
+    chdir: tmpdir.path
+  when: yay_bin.stat.exists is defined and yay_bin.stat.exists == False
+
+- name: cleanup
+  file:
+    state: absent
+    path: tmpdir.path
+  when: yay_bin.stat.exists is defined and yay_bin.stat.exists == False

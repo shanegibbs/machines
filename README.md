@@ -1,5 +1,15 @@
 # machines
 
+### TODO
+
+* `/etc/systemd/coredump.conf`
+
+### Docker
+
+```
+pacman -Sy ansible make
+```
+
 ### Simple UFI Machine
 
 ```shell

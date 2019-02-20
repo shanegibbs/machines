@@ -1,3 +1,16 @@
 all:
   hosts:
     prime8:
+      hostname: true
+      hosts: true
+      network: true
+      virtualmachine: true
+      grub: true
+      ssh: true
+    docker:
+      hostname: false
+      hosts: false
+      network: false
+      virtualmachine: false
+      grub: false
+      ssh: true

@@ -5,6 +5,7 @@
 
 - hostname:
     name: "{{target}}"
+  when: hostname
 
 - name: /etc/hosts
   include_role:
@@ -12,3 +13,4 @@
     tasks_from: template
   with_items:
     - path: /etc/hosts
+  when: hosts

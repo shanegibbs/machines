@@ -11,6 +11,7 @@
     name: systemd-networkd
     enabled: yes
     state: started
+  when: network
 
 - name: mkdir
   command: "mkdir -p /etc/systemd/system/getty@tty1.service.d"
@@ -23,7 +24,7 @@
     - { path: /etc/locale.gen, onchange: locale-gen }
     - { path: /etc/locale.conf }
     - { path: /etc/sysctl.d/99-sysctl.conf, onchange: sysctl --system }
-    - { path: /etc/systemd/network/20-wired.network, onchange: systemctl restart systemd-networkd }
+    - { path: /etc/systemd/network/20-wired.network, onchange: systemctl restart systemd-networkd, when: network }
     - { path: /etc/systemd/system/getty@tty1.service.d/getty.conf }
 
 - name: user shane
@@ -50,18 +51,21 @@
     content: "shane ALL=(ALL) NOPASSWD:ALL\n"
 
 - name: install core packages
+  become: yes
   pacman:
     name:
       - grub
       - parted
       - sudo
       - hwinfo
+      - time
       - htop
       - zsh
       - vim
       - tmux
       - openssh
       - git
+      - the_silver_searcher
       - docker
     state: present
 
@@ -85,17 +89,20 @@
       - xf86-input-vmmouse
       - xf86-video-vmware
     state: present
+  when: virtualmachine
 
 - name: vmtoolsd service
   systemd:
     name: vmtoolsd
     enabled: yes
     state: started
+  when: virtualmachine
 
 - name: install gui packages
   become: yes
   pacman:
     name:
+      - xorg-xev
       - rxvt-unicode
       - termite
       - dmenu
@@ -104,43 +111,9 @@
       - qpdfview
     state: present
 
-- name: yay exists
-  stat: 
-    path: /usr/bin/yay
-  register: yay_bin
-
-- name: yay dependencies
-  pacman:
-    name:
-      - binutils
-      - base-devel
-    state: present
-
-- name: yay pre-cleanup
-  file:
-    state: absent
-    path: /tmp/yay
-
-- name: yay clone
-  become: yes
-  become_user: shane
-  command: "git clone https://aur.archlinux.org/yay.git"
-  args:
-    chdir: /tmp
-  when: yay_bin.stat.exists is defined and yay_bin.stat.exists == False
-
-- name: yay build
-  become: yes
-  become_user: shane
-  command: "sudou su shane makepkg -si --needed --noconfirm"
-  args:
-    chdir: /tmp/yay
-  when: yay_bin.stat.exists is defined and yay_bin.stat.exists == False
-
-- name: yay cleanup
-  file:
-    state: absent
-    path: /tmp/yay
+- name: "arch-common : yay"
+  include_role:
+    name: yay
 
 - name: install aur packages
   become: yes
@@ -153,6 +126,7 @@
       - arch-silence-grub-theme
       - gotop-bin
       - i3-gaps
+      - spotify
 
 - name: "arch-common : grub"
   include_role:
@@ -160,4 +134,12 @@
     tasks_from: file
   with_items:
     - { path: /etc/default/grub, onchange: grub-mkconfig -o /boot/grub/grub.cfg }
+  when: grub
+
+- name: "arch-common : ssh"
+  include_role:
+    name: common
+    tasks_from: file
+  with_items:
     - { path: /etc/ssh/ssh_config }
+  when: ssh
