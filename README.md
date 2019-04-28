@@ -23,7 +23,7 @@ pacman -Sy ansible make
 
 # UFI part
 
-% parted /dev/sda mkpart P1 fat32 1MiB 256Mib
+% parted /dev/sda mkpart P1 fat32 2048s 256Mib
 % parted /dev/sda toggle 1 esp
 % mkfs.fat -F32 /dev/sdx1
 
